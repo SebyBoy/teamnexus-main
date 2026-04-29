@@ -1,0 +1,60 @@
+{% extends "messaging/base.html" %}
+
+{% block content %}
+
+<h1>Health Check Voting</h1>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <!-- Selection -->
+    <label>Team:</label>
+    <select name="team">
+        {% for team in teams %}
+            <option value="{{ team.id }}">{{ team.name }}</option>
+        {% endfor %}
+    </select>
+
+    <label>Session:</label>
+    <select name="session">
+        {% for session in sessions %}
+            <option value="{{ session.id }}">{{ session.date }}</option>
+        {% endfor %}
+    </select>
+
+    <hr>
+
+    <!-- Cards -->
+    {% for card in cards %}
+        <div class="card">
+
+            <h3>{{ card.title }}</h3>
+
+            <!--  DESCRIPTION (important UX improvement) -->
+            <p>{{ card.description }}</p>
+
+            <!-- Traffic light voting -->
+            <label>
+                <input type="radio" name="card_{{ card.id }}" value="green"> 🟢 Green
+            </label>
+            <input type="radio" name="card_{{ card.id }}" value="green" required>
+            <label>
+                <input type="radio" name="card_{{ card.id }}" value="amber"> 🟡 Amber
+            </label>
+
+            <label>
+                <input type="radio" name="card_{{ card.id }}" value="red"> 🔴 Red
+            </label>
+
+        </div>
+    {% endfor %}
+
+    <button type="submit">Submit</button>
+</form>
+<p>
+🟢 Green = Healthy |
+🟡 Amber = Needs attention |
+🔴 Red = Critical
+</p>
+
+{% endblock %}

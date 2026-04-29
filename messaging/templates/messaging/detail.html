@@ -1,0 +1,27 @@
+{% extends "messaging/base.html" %}
+
+{% block content %}
+
+<h1>Message Detail 💬</h1>
+
+<div class="card">
+
+    <strong>From:</strong> {{ message.sender.username }} <br>
+    <strong>To:</strong> {{ message.receiver.username }} <br>
+
+    <!-- Dynamic status display -->
+    <strong>Status:</strong>
+    {% if message.is_draft %}
+        Draft
+    {% else %}
+        Sent
+    {% endif %}
+
+    <br><br>
+
+    <strong>Message:</strong><br>
+    {{ message.content }}
+
+</div>
+
+{% endblock %}

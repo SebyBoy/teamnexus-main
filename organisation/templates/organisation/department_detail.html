@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{# extends base.html so this page inherits the navbar, footer and shared css #}
+
+{% block title %}{{ department.name }} - Sky Engineering{% endblock %}
+{# sets the browser tab title using the department name from views.py #}
+
+{% block extra_styles %}
+{# page specific styles only used on this page #}
+
+/* left blue border on team cards, visibility principle from lec3 so users can see these are content blocks */
+.team-card { border-left: 4px solid #0066cc; transition: transform 0.2s; }
+
+/* card lifts on hover, feedback principle from lec3 so user knows the card responded */
+.team-card:hover { transform: translateY(-3px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+/* gradient header banner from dark navy to sky blue, visual hierarchy from lec3 makes department name the most important element on page */
+.dept-header { background: linear-gradient(135deg, #0d1b2a, #0066cc); color: white; border-radius: 10px; }
+
+/* pill shaped badge for each team member, similarity gestalt principle from lec3 so all members look the same and are instantly recognisable */
+.member-badge { background-color: #e8f0fe; color: #0066cc; border-radius: 20px; padding: 4px 12px; font-size: 0.85rem; }
+{% endblock %}
+
+{% block content %}
+{# data passed from department_detail view in organisation/views.py #}
+{# department: single department object fetched using get_object_or_404 #}
+{# teams: all teams belonging to this department #}
+
+<!-- department header -->
+{# large gradient banner, scale principle from lec3 most important element is biggest #}
+<div class="dept-header p-4 mb-5">
+
+    {# back link to department list, continuity gestalt from lec3 so users always know how to go back #}
+    {# uses named url with namespace so resolves to /departments/ automatically #}
+    <a href="{% url 'organisation:department_list' %}" class="text-white-50 text-decoration-none small">
+        ← Back to Departments
+    </a>
+
+    {# department name displayed as h1, largest text on page following scale principle #}
+    <h1 class="mt-2 mb-1">{{ department.name }}</h1>
+
+    {# specialisation slightly transparent to create hierarchy between name and description #}
+    <p class="mb-2 opacity-75">{{ department.specialisation }}</p>
+
+    {# shows leader name or not assigned if no leader set #}
+    {# visibility principle from lec3 always show current state clearly #}
+    <p class="mb-0">
+        <strong>Department Leader:</strong>
+        {% if department.leader %}
+            {# get_full_name returns first and last name, falls back to username if not set #}
+            {{ department.leader.get_full_name|default:department.leader.username }}
+        {% else %}
+            <span class="opacity-75">Not assigned</span>
+        {% endif %}
+    </p>
+</div>
+
+<!-- teams section -->
+{# lists all teams in this department using department.teams.all() #}
+{# related_name teams comes from the foreignkey in core/models.py #}
+<h3 class="mb-4">Teams in {{ department.name }}</h3>
+
+{# bootstrap 2 column grid, balance principle from lec3 #}
+<div class="row">
+    {% for team in teams %}
+    {# loops through each team queryset returned from views.py #}
+    {# as taught in crud lecture using djangos queryset api #}
+    <div class="col-md-6 mb-4">
+        <div class="card team-card h-100">
+            <div class="card-body">
+
+                {# team name is bold and large, most important info in the card #}
+                <h5 class="card-title fw-bold">{{ team.name }}</h5>
+
+                {# mission and responsibilities smaller and muted, visual hierarchy from lec3 #}
+                <p class="text-muted small mb-2"><strong>Mission:</strong> {{ team.mission }}</p>
+                <p class="text-muted small mb-3"><strong>Responsibilities:</strong> {{ team.responsibilities }}</p>
+
+                {# shows manager name or not assigned if no manager linked to this team #}
+                <p class="mb-2"><strong>Manager:</strong>
+                    {% if team.manager %}
+                        {{ team.manager.get_full_name|default:team.manager.username }}
+                    {% else %}
+                        <span class="text-muted">Not assigned</span>
+                    {% endif %}
+                </p>
+
+                <!-- team members -->
+                {# loops through team members using related_name members from core/models.py #}
+                {# teammember resolves the many to many between users and teams (erd lecture) #}
+                <p class="mb-2"><strong>Members:</strong></p>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    {% for member in team.members.all %}
+                        {# each member shown as a pill badge, proximity gestalt from lec3 groups members together #}
+                        <span class="member-badge">
+                            {{ member.user.get_full_name|default:member.user.username }}
+                            {# role shows their position e.g. backend engineer #}
+                            <span class="text-muted"> · {{ member.role }}</span>
+                        </span>
+                    {% empty %}
+                        {# empty tag runs if no members exist yet #}
+                        <span class="text-muted small">No members yet</span>
+                    {% endfor %}
+                </div>
+
+                <!-- dependencies -->
+                {# upstream, so teams this team depends on #}
+                {# uses related_name upstream_dependencies from dependency model in core/models.py #}
+                <p class="mb-1"><strong>Upstream dependencies:</strong></p>
+                <ul class="small text-muted mb-2">
+                    {% for dep in team.upstream_dependencies.all %}
+                        <li>{{ dep.upstream_team.name }}</li>
+                    {% empty %}
+                        <li>None</li>
+                    {% endfor %}
+                </ul>
+
+                {# downstream, so teams that depend on this team #}
+                {# uses related_name downstream_dependencies from dependency model in core/models.py #}
+                <p class="mb-1"><strong>Downstream dependencies:</strong></p>
+                <ul class="small text-muted">
+                    {% for dep in team.downstream_dependencies.all %}
+                        <li>{{ dep.downstream_team.name }}</li>
+                    {% empty %}
+                        <li>None</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    {# shown if department has no teams yet #}
+    <p class="text-muted">No teams in this department yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}
+{# end of content block, base.html wraps this with the navbar and footer #}

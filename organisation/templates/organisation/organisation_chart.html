@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{# extends base.html so this page inherits the navbar, footer and shared css #}
+
+{% block title %}Organisation Chart - Sky Engineering{% endblock %}
+{# sets the browser tab title #}
+
+{% block extra_styles %}
+{# page specific styles only used on the organisation chart page #}
+
+/* department section card with blue top border */
+/* visual hierarchy from lec3 blue border signals start of each department group */
+.dept-section { border-top: 4px solid #0066cc; border-radius: 8px; }
+
+/* team node boxes, similarity gestalt from lec3 */
+/* all team nodes styled identically so users instantly recognise them as teams */
+.team-node {
+    background: white;
+    border: 2px solid #0066cc;
+    border-radius: 8px;
+    padding: 10px 15px;
+    display: inline-block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0d1b2a;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+/* hover effect on team node, feedback principle from lec3 */
+/* node fills blue to confirm it is clickable and interactive */
+.team-node:hover { background: #0066cc; color: white; }
+
+/* blue arrow between upstream and downstream teams */
+/* figure ground gestalt from lec3 arrow clearly separates the two teams */
+.dep-arrow { color: #0066cc; font-size: 1.2rem; }
+
+/* dependency row container */
+.dependency-row { background: white; border-radius: 8px; border: 1px solid #dee2e6; }
+{% endblock %}
+
+{% block content %}
+{# data passed from organisation_chart view in organisation/views.py #}
+{# departments, all departments with their teams already done #}
+{# dependencies, all dependency objects with upstream and downstream teams #}
+
+{# page heading, scale principle from lec3, largest text = most important #}
+<h1 class="mb-2">Organisation Chart</h1>
+<p class="text-muted mb-5">How Sky engineering teams are structured and related</p>
+
+<!-- departments and teams section -->
+{# brief requirement is met as view organisational structure for context #}
+{# proximity gestalt from lec3, teams grouped inside their department card so users can see which teams belong to which department at a glance #}
+{% for dept in departments %}
+<div class="card dept-section mb-5 p-4">
+
+    {# department name bold, visual hierarchy from lec3 #}
+    <h3 class="fw-bold mb-1">{{ dept.name }}</h3>
+    <p class="text-muted small mb-4">{{ dept.specialisation }}</p>
+
+    {# team nodes displayed horizontally using flexbox #}
+    {# continuity gestalt from lec3, nodes flow left to right naturally #}
+    <div class="d-flex flex-wrap gap-3">
+        {% for team in dept.teams.all %}
+            {# each team is a clickable node linking to the department detail page #}
+            {# uses dynamic url with pk as taught in dynamic urls lecture #}
+            <a href="{% url 'organisation:department_detail' dept.pk %}" class="text-decoration-none">
+                <div class="team-node">{{ team.name }}</div>
+            </a>
+        {% empty %}
+            {# shown if department has no teams yet, visibility principle from lec3 #}
+            <p class="text-muted">No teams yet</p>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+
+<!-- dependencies section -->
+{# brief requirement met as it allows visualisation of team dependencies upstream/downstream #}
+{# data retrieved using Dependency.objects.select_related() in views.py #}
+{# select_related fetches upstream and downstream team data in one sql query as taught in crud lecture on queryset api chaining #}
+<h3 class="mb-3">Team Dependencies</h3>
+<p class="text-muted mb-4">Upstream and downstream relationships between teams</p>
+
+{% for dep in dependencies %}
+{# each dependency shows upstream team, arrow, then downstream team #}
+{# figure ground gestalt from lec3, arrow clearly separates the two teams #}
+<div class="dependency-row p-3 mb-3 d-flex align-items-center gap-3">
+
+    {# upstream team: the team that others depend on #}
+    <div class="team-node">{{ dep.upstream_team.name }}</div>
+
+    {# arrow showing direction of dependency, continuity gestalt from lec3, reading left to right matching natural reading direction #}
+    <span class="dep-arrow">→</span>
+
+    {# downstream team: the team that depends on the upstream team #}
+    <div class="team-node">{{ dep.downstream_team.name }}</div>
+
+    {# text explanation of the relationship for clarity #}
+    {# visibility principle from lec3, system state is always clear to the user #}
+    <span class="text-muted small ms-2">
+        <strong>{{ dep.upstream_team.name }}</strong> is upstream of
+        <strong>{{ dep.downstream_team.name }}</strong>
+    </span>
+</div>
+{% empty %}
+{# shown if no dependencies exist yet #}
+<p class="text-muted">No dependencies defined yet.</p>
+{% endfor %}
+
+{% endblock %}
+{# end of content block, base.html wraps this with the navbar and footer #}

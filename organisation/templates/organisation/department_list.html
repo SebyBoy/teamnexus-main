@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{# extends base.html so this page inherits the navbar, footer and shared css #}
+
+{% block title %}Departments - Sky Engineering{% endblock %}
+{# sets the browser tab title #}
+
+{% block extra_styles %}
+{# page specific styles only used on the department list page #}
+
+/* left blue border on department cards, visibility principle from lec3 */
+.dept-card { border-left: 4px solid #0066cc; transition: transform 0.2s; }
+
+/* card lifts on hover, feedback principle from lec3 and confirms card is interactive */
+.dept-card:hover { transform: translateY(-3px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+/* blue badge for team count, similarity gestalt from lec3, all badges look the same */
+.badge-team { background-color: #0066cc; }
+{% endblock %}
+
+{% block content %}
+{# data passed from department_list view in organisation/views.py #}
+{# departments: queryset of all departments, filtered by search query if provided #}
+{# query: the current search term entered by the user #}
+
+{# page heading, scale principle from lec3, largest text = most important element #}
+<h1 class="mb-2">Departments</h1>
+<p class="text-muted mb-4">All engineering departments at Sky</p>
+
+<!-- search bar -->
+{# implements brief requirement: allow users to search for teams and departments quickly #}
+{# submits a get request with ?q= parameter, handled in department_list view #}
+{# as taught in crud lecture : Department.objects.filter(name__icontains=query) #}
+<form method="get" class="mb-4">
+    <div class="input-group" style="max-width: 400px;">
+        <input type="text" name="q" class="form-control" placeholder="Search departments..." value="{{ query }}">
+        {# value="{{ query }}" keeps the search term visible after submitting #}
+        <button class="btn btn-primary" type="submit">Search</button>
+        {% if query %}
+            {# only show clear button if a search is active #}
+            {# feedback principle from lec3, the user can see search is active and clear it #}
+            <a href="{% url 'organisation:department_list' %}" class="btn btn-outline-secondary">Clear</a>
+        {% endif %}
+    </div>
+</form>
+
+{# bootstrap 3 column grid, balance principle from lec3 #}
+<div class="row">
+    {% for dept in departments %}
+    {# loops through department queryset returned from views.py #}
+    {# as taught in crud lecture, Department.objects.all() returns all departments #}
+    <div class="col-md-4 mb-4">
+        <div class="card dept-card h-100">
+            <div class="card-body">
+
+                {# department name bold and large, visual hierarchy from lec3 #}
+                <h5 class="card-title fw-bold">{{ dept.name }}</h5>
+
+                {# specialisation smaller and muted, less important than the name #}
+                <p class="text-muted small">{{ dept.specialisation }}</p>
+
+                {# shows leader name or not assigned, visibility principle from lec3 #}
+                <p class="mb-2">
+                    <strong>Leader:</strong>
+                    {% if dept.leader %}
+                        {{ dept.leader.get_full_name|default:dept.leader.username }}
+                    {% else %}
+                        <span class="text-muted">Not assigned</span>
+                    {% endif %}
+                </p>
+
+                {# team count badge, proximity gestalt from lec3 #}
+                {# dept.teams.count uses djangos queryset api to count related teams #}
+                {# as taught in crud lecture, Model.objects.count() #}
+                <p class="mb-3">
+                    <strong>Teams:</strong>
+                    <span class="badge text-white badge-team">{{ dept.teams.count }}</span>
+                </p>
+
+                {# view department button links to department detail page #}
+                {# uses dynamic url with pk parameter as taught in dynamic urls lecture #}
+                <a href="{% url 'organisation:department_detail' dept.pk %}" class="btn btn-primary btn-sm">
+                    View Department
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    {# shown if no departments found, either database is empty or search returned no results #}
+    <p class="text-muted">No departments found.</p>
+    {% endfor %}
+</div>
+{% endblock %}
+{# end of content block, base.html wraps this with the navbar and footer #}
