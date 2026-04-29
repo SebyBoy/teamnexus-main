@@ -1,0 +1,25 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'messaging/style.css' %}">
+
+<div class="container">
+
+    <div class="tabs">
+        <a href="/messaging/">Inbox</a>
+        <a href="/messaging/sent/">Sent</a>
+        <a href="/messaging/drafts/">Drafts</a>
+        <a href="/messaging/send/">New Message</a>
+        <a href="/messaging/vote/">Vote</a>
+        <a href="/messaging/summary/">Summary</a>
+
+        <form action="/accounts/logout/" method="POST" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+
+    <hr>
+
+    {% block content %}
+    {% endblock %}
+
+</div>

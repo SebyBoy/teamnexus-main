@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ department.name }} - Sky Engineering{% endblock %}
+
+{% block extra_styles %}
+.team-card { border-left: 4px solid #0066cc; transition: transform 0.2s; }
+.team-card:hover { transform: translateY(-3px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.dept-header { background: linear-gradient(135deg, #0d1b2a, #0066cc); color: white; border-radius: 10px; }
+.member-badge { background-color: #e8f0fe; color: #0066cc; border-radius: 20px; padding: 4px 12px; font-size: 0.85rem; }
+{% endblock %}
+
+{% block content %}
+<!-- Department Header -->
+<div class="dept-header p-4 mb-5">
+    <a href="{% url 'organisation:department_list' %}" class="text-white-50 text-decoration-none small">
+        ← Back to Departments
+    </a>
+    <h1 class="mt-2 mb-1">{{ department.name }}</h1>
+    <p class="mb-2 opacity-75">{{ department.specialisation }}</p>
+    <p class="mb-0">
+        <strong>Department Leader:</strong>
+        {% if department.leader %}
+            {{ department.leader.get_full_name|default:department.leader.username }}
+        {% else %}
+            <span class="opacity-75">Not assigned</span>
+        {% endif %}
+    </p>
+</div>
+
+<!-- Teams -->
+<h3 class="mb-4">Teams in {{ department.name }}</h3>
+<div class="row">
+    {% for team in teams %}
+    <div class="col-md-6 mb-4">
+        <div class="card team-card h-100">
+            <div class="card-body">
+                <h5 class="card-title fw-bold">{{ team.name }}</h5>
+                <p class="text-muted small mb-2"><strong>Mission:</strong> {{ team.mission }}</p>
+                <p class="text-muted small mb-3"><strong>Responsibilities:</strong> {{ team.responsibilities }}</p>
+
+                <p class="mb-2"><strong>Manager:</strong>
+                    {% if team.manager %}
+                        {{ team.manager.get_full_name|default:team.manager.username }}
+                    {% else %}
+                        <span class="text-muted">Not assigned</span>
+                    {% endif %}
+                </p>
+
+                <!-- Team Members -->
+                <p class="mb-2"><strong>Members:</strong></p>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    {% for member in team.members.all %}
+                        <span class="member-badge">
+                            {{ member.user.get_full_name|default:member.user.username }}
+                            <span class="text-muted"> · {{ member.role }}</span>
+                        </span>
+                    {% empty %}
+                        <span class="text-muted small">No members yet</span>
+                    {% endfor %}
+                </div>
+
+                <!-- Dependencies -->
+                <p class="mb-1"><strong>Upstream dependencies:</strong></p>
+                <ul class="small text-muted mb-2">
+                    {% for dep in team.upstream_dependencies.all %}
+                        <li>{{ dep.upstream_team.name }}</li>
+                    {% empty %}
+                        <li>None</li>
+                    {% endfor %}
+                </ul>
+
+                <p class="mb-1"><strong>Downstream dependencies:</strong></p>
+                <ul class="small text-muted">
+                    {% for dep in team.downstream_dependencies.all %}
+                        <li>{{ dep.downstream_team.name }}</li>
+                    {% empty %}
+                        <li>None</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">No teams in this department yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

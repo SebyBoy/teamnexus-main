@@ -1,0 +1,20 @@
+{% extends "messaging/base.html" %}
+
+{% block content %}
+
+<h1>Sent 📤</h1>
+
+<!-- Displays sent messages -->
+{% for message in messages %}
+    <div class="card">
+        <strong>To:</strong> {{ message.receiver.username }} <br>
+        {{ message.content|truncatechars:80 }}
+
+        <br><br>
+        <a href="/message/{{ message.id }}/">Open</a>
+    </div>
+{% empty %}
+    <p>No sent messages</p>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,321 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sky Engineering Portal{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background-color: #f4f5f7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── TOP NAVBAR ── */
+        .top-navbar {
+            background-color: #0d1b2a;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            gap: 20px;
+        }
+        .brand {
+            color: white;
+            font-weight: 800;
+            font-size: 1.15rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            white-space: nowrap;
+        }
+        .brand-logo {
+            background: #0066cc;
+            color: white;
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .search-wrapper {
+            flex: 1;
+            max-width: 500px;
+            position: relative;
+        }
+        .search-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.4);
+            font-size: 0.95rem;
+        }
+        .search-wrapper input {
+            width: 100%;
+            background: rgba(255,255,255,0.08);
+            border: 1.5px solid rgba(255,255,255,0.12);
+            color: white;
+            border-radius: 25px;
+            padding: 9px 16px 9px 40px;
+            font-size: 0.92rem;
+            transition: all 0.2s;
+        }
+        .search-wrapper input::placeholder { color: rgba(255,255,255,0.4); }
+        .search-wrapper input:focus {
+            outline: none;
+            background: rgba(255,255,255,0.14);
+            border-color: #0066cc;
+        }
+        .nav-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-icon-btn {
+            color: rgba(255,255,255,0.65);
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .nav-icon-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .profile-circle {
+            background: #0066cc;
+            color: white;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .profile-circle:hover { background: #0052a3; color: white; }
+
+        /* ── SECONDARY NAVBAR ── */
+        .secondary-navbar {
+            background-color: #122035;
+            padding: 0 32px;
+            display: flex;
+            gap: 2px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .secondary-navbar a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .secondary-navbar a:hover {
+            color: white;
+            border-bottom-color: #0066cc;
+            background: rgba(255,255,255,0.04);
+        }
+        .secondary-navbar a.active {
+            color: white;
+            border-bottom-color: #0066cc;
+        }
+
+        /* ── MAIN CONTENT ── */
+        .main-content {
+            padding: 32px;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+        }
+
+        /* ── PAGE HEADER ── */
+        .page-header { margin-bottom: 28px; }
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #0d1b2a;
+            margin-bottom: 4px;
+        }
+        .page-header p { color: #6b7280; font-size: 0.95rem; margin: 0; }
+
+        /* ── CARDS ── */
+        .sky-card {
+            background: white;
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+        }
+        .sky-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        .sky-card-accent { border-top: 4px solid #0066cc; }
+
+        /* ── BUTTONS ── */
+        .btn-sky {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 20px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .btn-sky:hover { background-color: #0052a3; color: white; }
+
+        /* ── FOOTER ── */
+        .site-footer {
+            background: #0d1b2a;
+            color: rgba(255,255,255,0.5);
+            padding: 28px 32px;
+            font-size: 0.85rem;
+            margin-top: auto;
+        }
+        .site-footer .footer-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .site-footer a {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            margin-left: 20px;
+        }
+        .site-footer a:hover { color: white; }
+
+        {% block extra_styles %}{% endblock %}
+    </style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <nav class="top-navbar">
+        <a href="{% url 'organisation:department_list' %}" class="brand">
+            <img src="{% static 'core/images/sky_logo.png' %}" height="36" alt="Sky">
+            Engineering Portal
+        </a>
+        <div class="search-wrapper">
+            <i class="bi bi-search"></i>
+            <form method="get" action="{% url 'organisation:department_list' %}">
+                <input type="text" name="q" placeholder="Search teams, departments, managers...">
+            </form>
+        </div>
+        <div class="nav-right">
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'core:profile' %}" class="nav-icon-btn" title="Profile">
+                    <i class="bi bi-person"></i>
+                </a>
+                <a href="{% url 'core:logout' %}" class="nav-icon-btn" title="Logout">
+                    <i class="bi bi-box-arrow-right"></i>
+                </a>
+                <a href="{% url 'core:profile' %}" class="profile-circle">
+                    {{ request.user.username|first|upper }}
+                </a>
+                <a href="{% url 'core:logout' %}" style="
+                    color: white;
+                    border: 1.5px solid rgba(255,255,255,0.4);
+                    border-radius: 20px;
+                    padding: 6px 16px;
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    text-decoration: none;
+                    margin-left: 6px;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    transition: all 0.2s;
+                " onmouseover="this.style.background='rgba(255,255,255,0.1)'" 
+                   onmouseout="this.style.background='none'">
+                    <i class="bi bi-box-arrow-right"></i>
+                    {{ request.user.username }}
+                </a>
+            {% else %}
+                <a href="{% url 'core:login' %}" class="btn-sky">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Secondary Navbar -->
+    <nav class="secondary-navbar">
+        <a href="{% url 'organisation:department_list' %}">
+            <i class="bi bi-building"></i> Departments
+        </a>
+        <a href="{% url 'organisation:organisation_chart' %}">
+            <i class="bi bi-diagram-3"></i> Organisation
+        </a>
+        {% block extra_nav %}{% endblock %}
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div>
+                <strong style="color: white;">Sky Engineering Portal</strong>
+                &nbsp;· Internal use only
+            </div>
+            <div>
+                <a href="{% url 'organisation:department_list' %}">Departments</a>
+                <a href="{% url 'organisation:organisation_chart' %}">Organisation</a>
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'core:profile' %}">Profile</a>
+                    <a href="{% url 'core:logout' %}">Logout</a>
+                {% endif %}
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

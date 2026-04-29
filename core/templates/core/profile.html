@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Sky Engineering{% endblock %}
+
+{% block extra_styles %}
+.profile-card { border-top: 4px solid #0066cc; }
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card profile-card mb-4">
+            <div class="card-body p-4">
+                <h3 class="fw-bold mb-4">Update Profile</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Username</label>
+                        <input type="text" class="form-control" value="{{ user.username }}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">First Name</label>
+                        <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Last Name</label>
+                        <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Email</label>
+                        <input type="email" name="email" class="form-control" value="{{ user.email }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card profile-card">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">Change Password</h5>
+                <a href="{% url 'core:change_password' %}" class="btn btn-outline-primary w-100">
+                    Change Password
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

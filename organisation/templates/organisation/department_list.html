@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Departments - Sky Engineering{% endblock %}
+
+{% block extra_styles %}
+.dept-card { border-left: 4px solid #0066cc; transition: transform 0.2s; }
+.dept-card:hover { transform: translateY(-3px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.badge-team { background-color: #0066cc; }
+{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Departments</h1>
+<p class="text-muted mb-4">All engineering departments at Sky</p>
+
+<!-- Search Bar -->
+<form method="get" class="mb-4">
+    <div class="input-group" style="max-width: 400px;">
+        <input type="text" name="q" class="form-control" placeholder="Search departments..." value="{{ query }}">
+        <button class="btn btn-primary" type="submit">Search</button>
+        {% if query %}
+            <a href="{% url 'organisation:department_list' %}" class="btn btn-outline-secondary">Clear</a>
+        {% endif %}
+    </div>
+</form>
+
+<div class="row">
+    {% for dept in departments %}
+    <div class="col-md-4 mb-4">
+        <div class="card dept-card h-100">
+            <div class="card-body">
+                <h5 class="card-title fw-bold">{{ dept.name }}</h5>
+                <p class="text-muted small">{{ dept.specialisation }}</p>
+                <p class="mb-2">
+                    <strong>Leader:</strong>
+                    {% if dept.leader %}
+                        {{ dept.leader.get_full_name|default:dept.leader.username }}
+                    {% else %}
+                        <span class="text-muted">Not assigned</span>
+                    {% endif %}
+                </p>
+                <p class="mb-3">
+                    <strong>Teams:</strong>
+                    <span class="badge text-white badge-team">{{ dept.teams.count }}</span>
+                </p>
+                <a href="{% url 'organisation:department_detail' dept.pk %}" class="btn btn-primary btn-sm">
+                    View Department
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">No departments found.</p>
+    {% endfor %}
+</div>
+{% endblock %}

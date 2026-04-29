@@ -1,0 +1,108 @@
+{% extends "messaging/base.html" %}
+
+{% block content %}
+
+<h1>Summary 📊</h1>
+
+<!-- Inform user after voting -->
+<p>✅ Your votes have been successfully submitted.</p>
+
+<!--  FILTER SECTION -->
+<form method="GET">
+
+    <!-- Team filter -->
+    <label>Filter by Team:</label>
+    <select name="team">
+        <option value="">All</option>
+        {% for team in teams %}
+            <option value="{{ team.id }}">{{ team.name }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Session filter -->
+    <label>Filter by Session:</label>
+    <select name="session">
+        <option value="">All</option>
+        {% for session in sessions %}
+            <option value="{{ session.id }}">{{ session.date }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">Apply Filters</button>
+
+</form>
+
+<hr>
+
+<!--  SUMMARY + CHARTS -->
+{% for card, counts in summary.items %}
+    <div class="card">
+
+        <!-- Card title -->
+        <h3>{{ card }}</h3>
+
+        <!-- Chart container -->
+        <canvas id="chart_{{ forloop.counter }}"></canvas>
+
+        <!-- Interpretation logic -->
+        <p>
+            Overall:
+            {% if counts.green > counts.red %}
+                🟢 Healthy
+            {% elif counts.red > counts.green %}
+                🔴 Needs Attention
+            {% else %}
+                🟡 Neutral
+            {% endif %}
+        </p>
+
+    </div>
+{% empty %}
+    <p>No data available.</p>
+{% endfor %}
+
+<!-- Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Convert Django summary dictionary into JS object
+    const summaryData = {{ summary|safe }};
+
+    let index = 1;
+
+    // Loop through each health card
+    for (const card in summaryData) {
+
+        const data = summaryData[card];
+
+        // Select canvas element
+        const ctx = document.getElementById(`chart_${index}`);
+
+        // Create bar chart
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Green', 'Amber', 'Red'],
+                datasets: [{
+                    label: card,
+                    data: [data.green, data.amber, data.red],
+                    backgroundColor: [
+                        '#00c853', // green
+                        '#ffd600', // amber
+                        '#d50000'  // red
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        index++;
+    }
+</script>
+
+{% endblock %}
